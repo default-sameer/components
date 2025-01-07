@@ -71,8 +71,11 @@ const mockUsers: Users[] = [
 
 const Sortable = () => {
   const [users, setUsers] = useState<Users[]>(() => {
-    const savedUsers = localStorage.getItem("users");
-    return savedUsers ? JSON.parse(savedUsers) : mockUsers;
+    if (typeof window !== "undefined") {
+      const savedUsers = localStorage.getItem("users");
+      return savedUsers ? JSON.parse(savedUsers) : mockUsers;
+    }
+    return mockUsers;
   });
   const [activeUser, setActiveUser] = useState<Users>();
 
@@ -100,7 +103,9 @@ const Sortable = () => {
     if (activeIndex !== overIndex) {
       const newUsers = arrayMove<Users>(users, activeIndex, overIndex);
       setUsers(newUsers);
-      localStorage.setItem("users", JSON.stringify(newUsers));
+      if (typeof window !== "undefined") {
+        localStorage.setItem("users", JSON.stringify(newUsers));
+      }
     }
     setActiveUser(undefined);
   };
@@ -110,7 +115,10 @@ const Sortable = () => {
   };
 
   useEffect(() => {
-    localStorage.setItem("users", JSON.stringify(users));
+    // Only update localStorage on the client-side
+    if (typeof window !== "undefined") {
+      localStorage.setItem("users", JSON.stringify(users));
+    }
   }, [users]);
   return (
     <DndContext
