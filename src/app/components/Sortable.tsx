@@ -16,7 +16,7 @@ import {
   SortableContext,
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import SortableItem from "./SortableItem";
 import Item from "./Item";
 
@@ -70,7 +70,10 @@ const mockUsers: Users[] = [
 ];
 
 const Sortable = () => {
-  const [users, setUsers] = useState<Users[]>(mockUsers);
+  const [users, setUsers] = useState<Users[]>(() => {
+    const savedUsers = localStorage.getItem("users");
+    return savedUsers ? JSON.parse(savedUsers) : mockUsers;
+  });
   const [activeUser, setActiveUser] = useState<Users>();
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(TouchSensor));
@@ -95,7 +98,9 @@ const Sortable = () => {
     const overIndex = users.findIndex((user) => user.id === over.id);
 
     if (activeIndex !== overIndex) {
-      setUsers((prev) => arrayMove<Users>(prev, activeIndex, overIndex));
+      const newUsers = arrayMove<Users>(users, activeIndex, overIndex);
+      setUsers(newUsers);
+      localStorage.setItem("users", JSON.stringify(newUsers));
     }
     setActiveUser(undefined);
   };
@@ -103,6 +108,10 @@ const Sortable = () => {
   const handleDragCancel = () => {
     setActiveUser(undefined);
   };
+
+  useEffect(() => {
+    localStorage.setItem("users", JSON.stringify(users));
+  }, [users]);
   return (
     <DndContext
       sensors={sensors}
