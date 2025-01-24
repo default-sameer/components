@@ -6,7 +6,8 @@ import {
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
-  PointerSensor,
+  KeyboardSensor,
+  MouseSensor,
   TouchSensor,
   useSensor,
   useSensors,
@@ -79,7 +80,11 @@ const Sortable = () => {
   });
   const [activeUser, setActiveUser] = useState<Users>();
 
-  const sensors = useSensors(useSensor(PointerSensor), useSensor(TouchSensor));
+  const sensors = useSensors(
+    useSensor(MouseSensor, {}),
+    useSensor(TouchSensor, {}),
+    useSensor(KeyboardSensor, {})
+  );
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
